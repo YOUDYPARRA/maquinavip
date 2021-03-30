@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\ManufacturaController;
 use Inertia\Inertia;
 
 /*
@@ -30,4 +31,6 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
 })->name('dashboard');
 
 Route::resource('alumnos', AlumnoController::class)
+    ->middleware(['auth:sanctum', 'verified']);
+Route::resource('manufacturas', ManufacturaController::class)
     ->middleware(['auth:sanctum', 'verified']);

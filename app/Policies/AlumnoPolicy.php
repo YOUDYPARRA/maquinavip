@@ -33,7 +33,7 @@ class AlumnoPolicy
     public function view(User $user, alumnos $alumnos)
     {
         //
-        Log::debug('Read policy');
+        // Log::debug('Read policy');
         $team=$user->currentTeam;
         $arr_per=$user->teamPermissions($team);
         return in_array('read',$arr_per,true);

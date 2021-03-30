@@ -63,7 +63,7 @@ class HandleInertiaRequests extends Middleware
                 return $request->user()->can($permiso,alumnos::class);
                 break;
                 default:
-                Log::debug('switch updat');
+                // Log::debug('switch updat');
                 return $request->user()->can($permiso,$alumno);
                 break;
         }
