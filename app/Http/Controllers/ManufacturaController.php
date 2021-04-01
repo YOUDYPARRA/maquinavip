@@ -20,7 +20,7 @@ class ManufacturaController extends Controller
     public function index()
     {
         //
-        $manufacturas=Manufactura::where('id','>','0')->orderBy('id','desc')->get();
+        $manufacturas=Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get();
         return Inertia::render('Manufacturas',['manufacturas'=>$manufacturas]);
     }
 
@@ -42,81 +42,88 @@ class ManufacturaController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        // Log::debug('Manufacturas');
-        // Log::debug($request->imagen);
-        if ($request->bandera=='M') {
-            $request->validate([
-                'nombre'=>'required | min:2',
-                 
-                'bandera'=>'required',
+        $request->validate([
+            'modelo'=>'required | min:2',
+            'bandera'=>'required',
             ]);
-        } else if($request->bandera=='C'){
-            # code...
-            $request->validate([
-                'nombre'=>'required | min:2',
-                'id_modelo'=>'required | min:2',
-                'modelo'=>'required | min:2',
-                'cantidad'=>'required | min:2',
-                'bandera'=>'required | min:2',
-            ]);
-        }
-        // Log::debug($request->imagen->getClientOriginalName());
-        if(!empty($request->imagen)){
-            $nombre_imagen=$request->imagen->getClientOriginalName();
-            $path = $request->file('imagen')->store('public');
-             $archivo=explode('/',$path);
-
-        }
-        // $contents = file_get_contents($request->imagen->path());
-        //Storage::disk('local')->put($request->imagen, 'Contents');
-        //Log::debug($url = Storage::url($request->imagen));
-        //$file_name = time().'_'.$request->imagen->getClientOriginalName();
-                //$file_path = $request->imagen('imagen')->storeAs('uploads', $file_name, 'public');
-                //Log::debug($file_path);
-                //$url = Storage::url($path);
-                // Log::debug($);
-Log::debug('observacion '.$request->observacion);
+            $archivo='';
+            Log::debug('Manufacturas');
+            if(!empty($request->imagen)){
+                $nombre_imagen=$request->imagen->getClientOriginalName();
+                $path = $request->file('imagen')->store('public');
+                $archivo=explode('/',$path);
+            }
+            Log::debug('observacion '.$request->observacion);
+            // dd($request);
+        $archivo=empty($archivo) ? '' : $archivo[1];
         $observacion=empty($request->observacion) ? '' : $request->observacion;
 
 Log::debug($observacion);
         Manufactura::create([
-            'nombre'=>$request->nombre,
-            'imagen'=>$archivo[1],
+            'modelo'=>$request->modelo,
+            'imagen'=>$archivo,
             'id_modelo'=>'',
             'cantidad'=>'',
             'bandera'=>$request->bandera,
             'observacion'=> $observacion
         ]);
 
-        $manufacturas=Manufactura::where('id','>','0')->orderBy('id','desc')->get();
+        $manufacturas=Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get();
         // Log::debug($manufacturas);
         return Inertia::render('Manufacturas',['manufacturas'=>$manufacturas]);
         
     }
 
     /**
-     * Display the specified resource.
-     *
+     * Display list count
+     *manufacturas/{objeto}
      * @param  \App\Models\Manufactura  $manufactura
      * @return \Illuminate\Http\Response
+     * GET url/data
      */
     public function show(Manufactura $manufactura)
     {
         //
-
+        // Log::debug('Show');
+        // Log::debug($manufactura);
+        $conteos= Manufactura::where('id_modelo',$manufactura->id)
+        ->where('bandera','C')->orderBy('id','desc')->get();
+        Log::debug($conteos);
+        return Inertia::render('Manufacturas',['manufacturas'=>Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get(),'conteos'=>$conteos]);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
+     * Consulta un modelo y lo usa para almacenar la relacion de persona realiza
+     *GET manufacturas/{objeto}/edit
      * @param  \App\Models\Manufactura  $manufactura
      * @return \Illuminate\Http\Response
      */
-    public function edit(Manufactura $manufactura)
+    public function edit(Request $request, Manufactura $manufactura)
     {
         //
-    }
+        Log::debug($request);
+        Log::debug($manufactura);
+        $request->validate([
+            'modelo'=>'required | min:2',
+            'id_modelo'=>'required | min:2',
+            'bandera'=>'required',
+            'nombre'=>'required',
+            'cantidad'=>'required',
+            ]);
+            Manufactura::create([
+                'modelo'=>$request->modelo,
+                'id_modelo'=>$request->id_modelo,
+                'bandera'=>$request->bandera,
+                'cantidad'=>$request->cantidad,
+                'nombre' => $request->nombre,
+                'observacion'=> $request->observacion
+            ]);
+            // return redirect()->back()->with('message', 'Actualizado');
+            $conteos= Manufactura::where('id_modelo',$manufactura->id)
+        ->where('bandera','C')->orderBy('id','desc')->get();
+            return Inertia::render('Manufacturas',['manufacturas'=>Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get(),'conteos'=>$conteos]);
+            
+        }
 
     /**
      * Update the specified resource in storage.
@@ -127,23 +134,23 @@ Log::debug($observacion);
      */
     public function update(Request $request, Manufactura $manufactura)
     {
-        //
+        Log::debug($request->observacion);
+        Log::debug($manufactura);
         $request->validate([
-            'nombre'=>'required | min:2',
+            'modelo'=>'required | min:2',
             'bandera'=>'required',
-            'imagen'=>'required|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf|max:2048',
-            //'id_modelo'=>'required | min:2',
-            // 'imagen'=>'required',
-            // 'cantidad'=>'required | min:2',
-        ]);
-
-        $manufactura->nombre=$request->nombre;
+            // 'imagen'=>'required|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf|max:2048',
+            ]);
+            
+            $manufactura->modelo=$request->modelo;
+            // $manufactura->imagen=$request->imagen;
+            $manufactura->observacion=$request->observacion;
+            Log::debug($manufactura->observacion);
+        $manufactura->save();
         //$manufactura->id_modelo=$request->id_modelo;
         // $manufactura->modelo=$request->modelo;
         // $manufactura->cantidad=$request->cantidad;
-        $manufactura->imagen=$request->imagen;
-        $manufactura->save();
-        return redirect()->back()->with('success_message', 'Guardado');
+        return redirect()->back()->with('message', 'Actualizado');
 
     }
 
