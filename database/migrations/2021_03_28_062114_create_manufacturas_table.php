@@ -15,12 +15,15 @@ class CreateManufacturasTable extends Migration
     {
         Schema::create('manufacturas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre');//C
+            $table->string('nombre')->nullable();
+            $table->string('modelo');//C
             $table->string('id_modelo')->nullable();
             $table->string('cantidad')->nullable();
             $table->string('imagen')->nullable();
             $table->string('bandera');//catalogo =C, Manufactura= M
             $table->string('observacion')->nullable();
+            $table->string('color')->nullable();
+            $table->string('talla')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

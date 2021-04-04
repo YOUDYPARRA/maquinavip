@@ -25,7 +25,7 @@ class AlumnoController extends Controller
         //Log::debug($user->team);
          $team=$user->currentTeam;
           //dd($user->teamRole($t));
-              dd($user->teamPermissions($team));
+            //   dd($user->teamPermissions($team));
             //  dd($user->tokenCan(''));
         
 

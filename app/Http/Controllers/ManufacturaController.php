@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 class ManufacturaController extends Controller
 {
     /**
@@ -20,7 +21,12 @@ class ManufacturaController extends Controller
     public function index()
     {
         //
-        $manufacturas=Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get();
+        $manufactur=Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get();
+        if(count($manufactur)>0){
+
+            $manufacturas=$this->total_es(Manufactura::class,$manufactur);
+        }
+
         return Inertia::render('Manufacturas',['manufacturas'=>$manufacturas]);
     }
 
@@ -53,11 +59,9 @@ class ManufacturaController extends Controller
                 $path = $request->file('imagen')->store('public');
                 $archivo=explode('/',$path);
             }
-            Log::debug('observacion '.$request->observacion);
             // dd($request);
         $archivo=empty($archivo) ? '' : $archivo[1];
         $observacion=empty($request->observacion) ? '' : $request->observacion;
-
 Log::debug($observacion);
         Manufactura::create([
             'modelo'=>$request->modelo,
@@ -65,11 +69,10 @@ Log::debug($observacion);
             'id_modelo'=>'',
             'cantidad'=>'',
             'bandera'=>$request->bandera,
-            'observacion'=> $observacion
+            'observacion'=> $observacion,
+            'color'=> $request->color
         ]);
-
-        $manufacturas=Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get();
-        // Log::debug($manufacturas);
+        $manufacturas=$this->total_es(Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get());
         return Inertia::render('Manufacturas',['manufacturas'=>$manufacturas]);
         
     }
@@ -84,31 +87,50 @@ Log::debug($observacion);
     public function show(Manufactura $manufactura)
     {
         //
-        // Log::debug('Show');
+        Log::debug('Show');
         // Log::debug($manufactura);
         $conteos= Manufactura::where('id_modelo',$manufactura->id)
         ->where('bandera','C')->orderBy('id','desc')->get();
-        Log::debug($conteos);
-        return Inertia::render('Manufacturas',['manufacturas'=>Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get(),'conteos'=>$conteos]);
+        $manufacturas=$this->total_es(Manufactura::class,Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get());
+        $nombres = DB::table('manufacturas')->select('nombre')->distinct()->where('bandera','C')->where('id_modelo',$manufactura->id)->get();
+        Log::debug($nombres);
+        foreach ($nombres as $key => $nombre) {
+            $arr_busc=['id'=>$manufactura->id,'nombre'=>$nombre->nombre];
+            $total=$this->cada_manufactura($arr_busc,Manufactura::class);
+            foreach ($conteos as $k => $conteo) {
+                Log::debug($conteo->nombre);
+                if($conteo->nombre==$nombre->nombre){
+                    Log::debug($total);
+                    if(!isset($conteo->total)){
+                        $conteos[$k]->total=$total;
+                        Log::debug('->'.$conteos[$k]->total);
+                    }
+                }
+            }
+
+        }
+        return Inertia::render('Manufacturas',['manufacturas'=>$manufacturas,'conteos'=>$conteos]);
     }
 
     /**
      * Consulta un modelo y lo usa para almacenar la relacion de persona realiza
      *GET manufacturas/{objeto}/edit
-     * @param  \App\Models\Manufactura  $manufactura
+     * @param  \App\Models\Manufactura  $manufactura$
      * @return \Illuminate\Http\Response
      */
     public function edit(Request $request, Manufactura $manufactura)
     {
         //
-        Log::debug($request);
-        Log::debug($manufactura);
+        // Log::debug($request);
+        // Log::debug($manufactura);
+        Log::debug('EDIT');
         $request->validate([
             'modelo'=>'required | min:2',
-            'id_modelo'=>'required | min:2',
+            'id_modelo'=>'required',
             'bandera'=>'required',
-            'nombre'=>'required',
+            'nombre'=>'required | min:2',
             'cantidad'=>'required',
+            'talla'=>'required',
             ]);
             Manufactura::create([
                 'modelo'=>$request->modelo,
@@ -116,12 +138,32 @@ Log::debug($observacion);
                 'bandera'=>$request->bandera,
                 'cantidad'=>$request->cantidad,
                 'nombre' => $request->nombre,
+                'talla'=> $request->talla,
                 'observacion'=> $request->observacion
             ]);
             // return redirect()->back()->with('message', 'Actualizado');
             $conteos= Manufactura::where('id_modelo',$manufactura->id)
         ->where('bandera','C')->orderBy('id','desc')->get();
-            return Inertia::render('Manufacturas',['manufacturas'=>Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get(),'conteos'=>$conteos]);
+
+            $manufacturas=$this->total_es(Manufactura::class,Manufactura::where('id','>','0')->where('bandera','M')->orderBy('id','desc')->get());
+            $nombres = DB::table('manufacturas')->select('nombre')->distinct()->where('bandera','C')->where('id_modelo',$manufactura->id)->get();
+            Log::debug($nombres);
+            foreach ($nombres as $key => $nombre) {
+                $arr_busc=['id'=>$manufactura->id,'nombre'=>$nombre->nombre];
+                $total=$this->cada_manufactura($arr_busc,Manufactura::class);
+                foreach ($conteos as $k => $conteo) {
+                    Log::debug($conteo->nombre);
+                    if($conteo->nombre==$nombre->nombre){
+                        Log::debug($total);
+                        if(!isset($conteo->total)){
+                            $conteos[$k]->total=$total;
+                            Log::debug('->'.$conteos[$k]->total);
+                        }
+                    }
+                }
+    
+            }
+            return Inertia::render('Manufacturas',['manufacturas'=>$manufacturas,'conteos'=>$conteos]);
             
         }
 
@@ -136,22 +178,22 @@ Log::debug($observacion);
     {
         Log::debug($request->observacion);
         Log::debug($manufactura);
+        Log::debug('IPDATE');
         $request->validate([
             'modelo'=>'required | min:2',
             'bandera'=>'required',
             // 'imagen'=>'required|mimes:jpg,jpeg,png,csv,txt,xlx,xls,pdf|max:2048',
             ]);
-            
             $manufactura->modelo=$request->modelo;
             // $manufactura->imagen=$request->imagen;
             $manufactura->observacion=$request->observacion;
+            $manufactura->color=$request->color;
             Log::debug($manufactura->observacion);
         $manufactura->save();
         //$manufactura->id_modelo=$request->id_modelo;
         // $manufactura->modelo=$request->modelo;
         // $manufactura->cantidad=$request->cantidad;
         return redirect()->back()->with('message', 'Actualizado');
-
     }
 
     /**
@@ -164,7 +206,6 @@ Log::debug($observacion);
     {
         //
         $manufactura->delete();
-
         return redirect()->back()->with('message', 'Eliminado');
     }
     private function formatDate($date){
@@ -180,7 +221,44 @@ Log::debug($observacion);
         }else{
             $arr=explode('/',$date);
             return $subarr[0].'/'.$arr[1].'/'.$arr[0];
-
         }
+      }
+      private function total_es ($maquila,$manufacturas){
+        foreach ($manufacturas as $key => $manufactura) {
+            // Log::debug($manufactura->id);
+            $maq=$maquila::cantidades($manufactura->id)->get();
+            $x=0;
+            // Log::debug($maq);
+            foreach ($maq as $k => $m) {
+                // Log::debug($m);
+               $m->cantidad= is_numeric($m->cantidad)?$m->cantidad:0;
+                // Log::debug($m->cantidad);
+                $x=$x+$m->cantidad;
+            }
+            $manufacturas[$key]->total=$x;
+        }
+        return $manufacturas;
+
+
+      }
+      private function cada_manufactura(Array $manufactura,$manufactura_clase){
+          //obtener la cantidad por cada nombre con bandera C
+          //manufactura[id=>,nombre=>]
+          # code...
+          Log::debug($manufactura);
+          $t=0;
+          $contar=$manufactura_clase::totalmaquinero([
+              'id'=>$manufactura['id'],
+              'nombre'=>$manufactura['nombre']
+              ])->get();
+              Log::debug($contar);
+              foreach ($contar as $key => $c) {
+                  # code...
+
+                  $c->cantidad= is_numeric($c->cantidad)?$c->cantidad:0;
+                  Log::debug($c->cantidad);
+                  $t=$t+$c->cantidad;
+              }
+        return $t;
       }
 }

@@ -13,11 +13,28 @@
                     <label for="exampleFormControlInput1" class="block text-gray-700 text-sm font-bold mb-2">Observacion</label>
                     <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1" v-model="form.observacion">
                     <input type="hidden" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1" v-model="form.bandera">
-                    <div v-if="errors.imagen" class="text-red-500">{{ errors.imagen }}</div>
+                </div>
+                <div class="mb-4">
+                  <input type="radio" id="Rojo" value="Rojo" v-model="form.color">
+                  <label for="Rojo">Rojo</label>
+                  <input type="radio" id="Azul" value="Azul" v-model="form.color">
+                  <label for="Azul">Azul</label>
+                  
+                  <span> Estado: <div v-if="form.color==='Azul'"
+                        class="text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-blue-200 text-blue-700 rounded-full"
+                      ></div>
+                      <div v-if="form.color==='Rojo'"
+                        class="text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-red-200 text-red-700 rounded-full"
+                      ></div>
+                  </span>
+
+                  
+
                 </div>
                 <span class="flex w-full rounded-md shadow-sm sm:ml-3 sm:w-auto">
                     <div v-if="!editModelo">
                     <input type="file" @change="selectFile">
+                    <div v-if="errors.imagen" class="text-red-500">{{ errors.imagen }}</div>
                     <button wire:click.prevent="store()" type="button" class="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-green-600 text-base leading-6 font-medium text-white shadow-sm hover:bg-green-500 focus:outline-none focus:border-green-700 focus:shadow-outline-green transition ease-in-out duration-150 sm:text-sm sm:leading-5" @click="saveManufactura(form)">
                     Guardar
                     </button>
@@ -39,17 +56,17 @@
               <table>
               <thead>
                 <tr>
-                  <th>
-                    #UID
+                  
+                  <th >
                   </th>
                   <th >
-                    Nombre
-                  </th>
-                  <th >
-                  Imagen
+                    Modelo
                   </th>
                   <th >
                     Observaciones
+                  </th>
+                  <th>
+                    Total
                   </th>
                   <th>
                     Opciones
@@ -60,16 +77,26 @@
               <tbody>
                 <tr v-for="manufactura in manufacturas" :key="manufactura.id">
                   <td>
-                          {{ manufactura.id }}
-                  </td>
-                  <td>
-                          {{ manufactura.modelo }}
-                  </td>
-                  <td>
                     <img :src="`/storage/${manufactura.imagen}`" alt="{{ manufactura.modelo }}" class="rounded-full h-20 w-20 object-cover">
                   </td>
                   <td>
+                    <div v-if="manufactura.color==='Azul'"
+                        class="text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-blue-200 text-blue-700 rounded-full"
+                      >
+                          {{ manufactura.modelo }}
+                      </div>
+                      <div v-if="manufactura.color==='Rojo'"
+                        class="text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-red-200 text-red-700 rounded-full"
+                      >
+                          {{ manufactura.modelo }}
+                      </div>
+                  </td>
+                  
+                  <td>
                           <div>{{ manufactura.observacion }}</div>
+                  </td>
+                  <td>
+                    {{manufactura.total}}
                   </td>
                   <td>
                     <button @click="editManufactura(manufactura)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-3">Editar</button>
@@ -111,6 +138,12 @@
                 </div>
                 
                 <div class="mb-4">
+
+                    <label for="exampleFormControlInput1" class="block text-gray-700 text-sm font-bold mb-2">Talla</label>
+                    <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1"  v-model="formConteo.talla">
+                    <div v-if="errors.talla" class="text-red-500">{{ errors.talla }}</div>
+                </div>
+                <div class="mb-4">
                     <label for="exampleFormControlInput1" class="block text-gray-700 text-sm font-bold mb-2">Observacion</label>
                     <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1"  v-model="formConteo.observacion">
                     <div v-if="errors.observacion" class="text-red-500">{{ errors.observacion }}</div>
@@ -137,18 +170,20 @@
               <table>
               <thead>
                 <tr>
-                  <th>
-                    #UID
-                  </th>
+                  <th>Talla</th>
                   <th >
                     Nombre
                   </th>
                   <th >
                     Cantidad
                   </th>
+                  <th>
+                    Total
+                  </th>
                   <th >
                     Observaciones
                   </th>
+                  <th>Fecha</th>
                   <th>
                     Opciones
                   </th>
@@ -157,9 +192,7 @@
               </thead>
               <tbody>
                 <tr v-for="conteo in conteos" :key="conteo.id">
-                  <td>
-                          {{ conteo.id }}
-                  </td>
+                  <td>{{conteo.talla}}</td>
                   <td>
                           {{ conteo.nombre }}
                   </td>
@@ -167,8 +200,12 @@
                           {{ conteo.cantidad }}
                   </td>
                   <td>
+                    {{ conteo.total }}
+                  </td>
+                  <td>
                           {{ conteo.observacion }}
                   </td>
+                  <td>{{conteo.created_at}}</td>
                   <td>
                     <button @click="eliminaconteo(conteo)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-3">Eliminar</button>
                   </td>
@@ -210,6 +247,8 @@ export default {
           modelo:'',
           bandera:'M',
           imagen:Object,
+          color:'',
+          total:'',
         },
         formConteo:{
           title:'Listado',
@@ -219,6 +258,7 @@ export default {
           nombre:'',
           observacion:'',
           cantidad:'',
+          talla:'',
         },
         url:'/manufacturas/',
         editModelo:false,
