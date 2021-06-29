@@ -31,6 +31,11 @@
                                     Manufactura
                                 </jet-nav-link>
                             </div>
+                            <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                                <jet-nav-link :href="route('nombres.index')" :active="route().current('nombres.index')">
+                                    Nombres
+                                </jet-nav-link>
+                            </div>
 
                         </div>
 

@@ -11,7 +11,13 @@ class Manufactura extends Model
     use HasFactory;
     protected $table='manufacturas';
     protected $fillable=['nombre',
-    'id_modelo','modelo','cantidad','imagen','bandera','observacion','color','talla'];
+    'id_modelo','modelo','cantidad','imagen','bandera','observacion','color','talla',
+    'tienda',
+    'numero_orden',
+    'fecha_entrega',
+    'total_corte',
+    'fecha_limite'
+];
     //Scope para Buscar, Scope para Total , Scope Para total por maquinero.
     public function scopeCantidades($query,$id_modelo)
     {

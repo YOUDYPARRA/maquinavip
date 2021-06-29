@@ -2,7 +2,7 @@
 <app-layout>
   <template #header>
     <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{form.title}} Manufactura 
+            {{form.bandera}} Manufactura 
               <form @submit.prevent="submit">                
                 <div class="mb-4">
                     <label for="exampleFormControlInput1" class="block text-gray-700 text-sm font-bold mb-2">Modelo</label>
@@ -10,17 +10,44 @@
                     <div v-if="errors.modelo" class="text-red-500">{{ errors.modelo }}</div>
                 </div>
                 <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Tienda</label>
+                    <input type="text" v-model="form.tienda" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1">
+                    <div v-if="errors.tienda" class="text-red-500">{{ errors.tienda }}</div>
+                </div>
+                <div class="mb-4">
+                    <label  class="block text-gray-700 text-sm font-bold mb-2">Numero de orden</label>
+                    <input type="text" v-model="form.numero_orden" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1">
+                    <div v-if="errors.numero_orden" class="text-red-500">{{ errors.fecha_entrega }}</div>
+                </div>
+                <div class="mb-4">
+                    <label  class="block text-gray-700 text-sm font-bold mb-2">
+                      Fecha entrega</label>
+                    <input type="text" v-model="form.fecha_entrega" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1">
+                    <div v-if="errors.fecha_entrega" class="text-red-500">{{ errors.fecha_entrega }}</div>
+                </div>
+                <div class="mb-4">
+                    <label  class="block text-gray-700 text-sm font-bold mb-2">Total corte</label>
+                    <input type="text" v-model="form.total_corte" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <div v-if="errors.total_corte" class="text-red-500">{{ errors.total_corte }}</div>
+                </div>
+                <div class="mb-4">
+                    <label  class="block text-gray-700 text-sm font-bold mb-2">Fecha limite</label>
+                    <input type="text" v-model="form.fecha_limite" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1">
+                    <div v-if="errors.fecha_limite" class="text-red-500">{{ errors.fecha_limite }}</div>
+                </div>
+                <div class="mb-4">
                     <label for="exampleFormControlInput1" class="block text-gray-700 text-sm font-bold mb-2">Observacion</label>
                     <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1" v-model="form.observacion">
                     <input type="hidden" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="exampleFormControlInput1" v-model="form.bandera">
                 </div>
                 <div class="mb-4">
+                  Estado:
                   <input type="radio" id="Rojo" value="Rojo" v-model="form.color">
                   <label for="Rojo">Rojo</label>
                   <input type="radio" id="Azul" value="Azul" v-model="form.color">
                   <label for="Azul">Azul</label>
                   
-                  <span> Estado: <div v-if="form.color==='Azul'"
+                  <span>  <div v-if="form.color==='Azul'"
                         class="text-xs inline-flex items-center font-bold leading-sm uppercase px-3 py-1 bg-blue-200 text-blue-700 rounded-full"
                       ></div>
                       <div v-if="form.color==='Rojo'"
@@ -63,6 +90,21 @@
                     Modelo
                   </th>
                   <th >
+                    Tienda
+                  </th>
+                  <th >
+                    Numero orden
+                  </th>
+                  <th >
+                    Fecha entrega
+                  </th>
+                  <th >
+                    Total corte
+                  </th>
+                  <th >
+                    Fecha limite
+                  </th>
+                  <th >
                     Observaciones
                   </th>
                   <th>
@@ -91,18 +133,28 @@
                           {{ manufactura.modelo }}
                       </div>
                   </td>
+                  <td>{{manufactura.tienda}}</td>
+                  <td>{{manufactura.numero_orden}}</td>
+                  <td>{{manufactura.fecha_entrega}}</td>
+                  <td>{{manufactura.total_corte}}</td>
+                  <td>{{manufactura.fecha_limite}}</td>
                   
                   <td>
-                          <div>{{ manufactura.observacion }}</div>
+                          <div>
+                            {{ manufactura.observacion }}
+                            {{ manufactura.bandera }}
+
+                          </div>
                   </td>
                   <td>
-                    {{manufactura.total}}
+                    {{manufactura.total_corte}}
                   </td>
                   <td>
                     <button @click="editManufactura(manufactura)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-3">Editar</button>
                     <button @click="eliminaManufactura(manufactura)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-3">Eliminar</button>
-                    <button @click="detalleManufactura(manufactura)" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded my-3">Detalles</button>
-                   
+                   <inertia-link href="/maquileros" :data="{manufactura}" class="underline text-sm text-gray-600 hover:text-gray-900">
+                    Maquileros
+                    </inertia-link>
                   </td>
                   
                 </tr>
@@ -207,7 +259,7 @@
                   </td>
                   <td>{{conteo.created_at}}</td>
                   <td>
-                    <button @click="eliminaconteo(conteo)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-3">Eliminar</button>
+                    <button @click="eliminaManufactura(conteo)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-3">Eliminar</button>
                   </td>
                   
                 </tr>
@@ -249,6 +301,11 @@ export default {
           imagen:Object,
           color:'',
           total:'',
+          tienda:'',
+          numero_orden:'',
+          fecha_entrega:'',
+          total_corte:'',
+          fecha_limite:'',
         },
         formConteo:{
           title:'Listado',
