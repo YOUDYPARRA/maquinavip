@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Routing\UrlGenerator;
 // use Illuminate\Support\Facades\Auth;
 
 use Inertia\Inertia;
@@ -19,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         //
+        if (env('REDIRECT_HTTPS')) {
+            $this->app['request']->server->set('HTTPS', true);
+        }
     }
 
     /**
@@ -26,8 +30,11 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(UrlGenerator $url)
     {
+        if (env('REDIRECT_HTTPS')) {
+            $url->formatScheme('https://');
+            }
         Inertia::share([
 
             'errors' => function () {
@@ -41,9 +48,6 @@ class AppServiceProvider extends ServiceProvider
             },
 
         ]);
-
-  
-
         Inertia::share('flash', function () {
 
             return [
