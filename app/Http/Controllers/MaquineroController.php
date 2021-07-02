@@ -6,7 +6,8 @@ use App\Models\Maquinero;
 use App\Models\Nombre;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-// use Illuminate\Support\Facades\Log;
+
+use Illuminate\Support\Facades\Log;
 
 class MaquineroController extends Controller
 {
@@ -18,6 +19,7 @@ class MaquineroController extends Controller
     public function index(Request $r)
     {
         //
+        // $this->tallas();
         $id_modelo=$r->manufactura['id'];
         $maquileros=[];
         $nombres=[];
@@ -56,6 +58,7 @@ class MaquineroController extends Controller
     {
         //
         // dd($request->id_nombre);
+        
         $request->validate([
             'id_nombre'=>'required',
             'cantidad'=>'required | numeric',
@@ -76,14 +79,39 @@ class MaquineroController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Selecciona el maquilero, y ordena por tallas y suma las tallas y suma por maquinero
      *
      * @param  \App\Models\Maquinero  $maquinero
      * @return \Illuminate\Http\Response
      */
-    public function show(Maquinero $maquinero)
+    public function show(Maquinero $maquinero, Request $request)
     {
-        //
+        // dd($request->all());
+        $id_nombre=$request['maquilero']['id_nombre'];
+        $totales= array();
+        foreach ($this->tallas() as $key => $talla) {
+            $total_talla=[];
+            $detalle_talla=Maquinero::where('id_nombre',$id_nombre)
+            ->where('talla',$talla)
+            ->get();
+            $suma_talla=0;
+            $total_talla[]=$talla;
+            
+            foreach ($detalle_talla as $key => $suma) {
+                $suma_talla=$suma_talla+$suma->cantidad;
+            }
+            $total_talla[]=$suma_talla;
+
+            // Log::debug($total_talla);
+            if(!empty($total_talla)){
+                $totales[]=$total_talla;
+            }
+        }
+        return Inertia::render('Maquileros',[
+            'totales'=>$totales
+            ]);
+        
+
     }
 
     /**
@@ -151,5 +179,13 @@ class MaquineroController extends Controller
     private function nombre_maquilero($id_maquilero){
         $maquilero=Nombre::findOrFail($id_maquilero);
         return $maquilero->nombre;
+    }
+    private function tallas(){
+        $talla=[];
+        $tallas=Maquinero::groupBy('talla')->get();
+        foreach ($tallas as $key => $t) {
+            $talla[]=$t->talla;
+        }
+        return $talla;
     }
 }

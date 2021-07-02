@@ -56,7 +56,7 @@ class PagoController extends Controller
                 'monto'=>$request->monto,
                 'nombre'=>'',
                 'observacion'=>$request->observacion]);
-                dd($request->observacion);
+                // dd($request->observacion);
                 return redirect()->back()->with('message', 'Creado');
         
     }

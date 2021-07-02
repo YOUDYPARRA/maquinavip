@@ -56,6 +56,25 @@
                 
             </form>
       </h2>
+      <!-- tabla de detalles-->
+      <div>
+        <table class="border-separate border-2 border-gray-800">
+              <thead>
+                <tr>
+                  <th class="border border-gray-400 px-4 py-2 text-gray-800">Talla</th>
+                  <th class="border border-gray-400 px-4 py-2 text-gray-800">Total manufacturado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="total in totales" :key="total" >
+                  <td class="border border-gray-400 px-4 py-2 text-gray-800">{{total[0]}}</td>
+                  <td class="border border-gray-400 px-4 py-2 text-gray-800">{{total[1]}}</td>
+                </tr>
+              </tbody>
+        </table>
+
+      </div>
+      <!-- fin tabla de detalles-->
 
       <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -117,8 +136,11 @@
                   <td class="border border-gray-400 px-4 py-2">
                     <button @click="eliminaMaquilero(maquilero)" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded my-3">Eliminar</button>
                     <button @click="editMaquilero(maquilero)" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-3">Editar</button>
-                   <inertia-link href="/pagos" :data="{maquilero}" class="underline text-sm text-gray-600 hover:text-gray-900">
+                   <inertia-link as="button" href="/pagos" :data="{maquilero}" class="underline text-sm text-gray-600 hover:text-gray-900">
                     Pagos
+                    </inertia-link>
+                    <inertia-link href="/maquileros/maquilero" :data="{maquilero}" :only="['totales']" preserve-scroll class="underline text-sm text-gray-600 hover:text-gray-900">
+                    Detalle
                     </inertia-link>
                   </td>
                   
@@ -144,6 +166,7 @@ export default {
     nombres:Object,
     errors:Object,
     messages:Object,
+    totales:Object,
     conteos:Object
     },
   data(){
@@ -164,7 +187,7 @@ export default {
       }
   },
   methods:{
-      saveMaquilero(d){
+    saveMaquilero(d){
         this.$inertia.post(this.url,this.form);
       },
       updateMaquilero(d){
