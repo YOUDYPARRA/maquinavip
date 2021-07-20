@@ -80,7 +80,8 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-              <table>
+              <div class="overflow-y-auto h-32 ...">
+              <table class="table-auto">
               <thead>
                 <tr>
                   
@@ -117,7 +118,7 @@
 	            </tr>
               </thead>
               <tbody>
-                <tr v-for="manufactura in manufacturas" :key="manufactura.id">
+                <tr v-for="manufactura in manufacturas" :key="manufactura.id" class="bg-emerald-200">
                   <td>
                     <img :src="`/storage/${manufactura.imagen}`" alt="{{ manufactura.modelo }}" class="rounded-full h-20 w-20 object-cover">
                   </td>
@@ -160,6 +161,7 @@
                 </tr>
               </tbody>
             </table>
+            </div>
 
             </div>
         </div>
